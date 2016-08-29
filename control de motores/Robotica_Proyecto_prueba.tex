@@ -1,0 +1,139 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{lmodern}
+
+%\usepackage[spanish,activeacute,es-nodecimaldot]{babel}
+\usepackage[spanish,activeacute,es-nodecimaldot]{babel}
+\usepackage{amsmath}
+\usepackage{xcolor}
+
+\usepackage{inputenc}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{amsfonts}
+\usepackage{subcaption}
+\usepackage{array}
+\title{\includegraphics[height = 3cm]{LogoCIN2}\\Centro de Investigación y de Estudios Avanzados del Instituto Politécnico Nacional\\ \vspace{ 0.5cm} Departamento de Control Automático\\ \vspace{ 0.5cm} Introducción a la robótica  \\ \vspace{0.5cm} \large Tarea 1}
+\author{-----------}
+\date{Marzo de 2014}
+
+\begin{document}
+% cuerpo del documento
+
+\maketitle
+\newpage
+\section{Control de los motores}
+Para el movimiento del robot móvil, se emplean dos motores de 7.4V, conectados a sistema de engranes que reducen la velocidad con un radio de 8:1, cada motor cuenta con un encoder óptico incremental, que permite obtener información sobre la velocidad a la que se desplaza, a continuación se presenta por secciones el sistema de control de los motores.
+
+
+\subsection{Encoder Optico incremental}
+Un encoder incremental óptico, es un dispositivo electromecánico que  proporciona salidas cíclicas cuando es rotado,   este tipo de encoder es útil para obtener información de movimiento rotacional  de manera precisa aun a altas velocidades.%\begin{center}
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.50\textwidth]{encoderoptico.png}
+		\caption{Mecanismo de funcionamiento de un encoder óptico  incremental}
+		\label{fig:encoderoptico}
+\end{figure}
+
+
+Para obtener información sobre la posición y velocidad de los motores que imprimen movimiento al robot móvil, se hace uso del encoder óptico incremental IE2-16, de FAULHABER, este dispositivo acoplado al motor ofrece 512 pulsos por revolución a través  de dos señales cuadradas que se encuentran  desfasadas, por lo que es posible  calcular además de  posición y velocidad, el sentido del movimiento. 
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\textwidth]{encodersenal.png}
+		\caption{Ejemplo de cuadratura de encoder incremental}
+		\label{fig:cuadratura de encoder}
+\end{figure}
+
+
+%  \begin{tabular}{| >{$}l<{$} | >{$}l<{$} | >{$}l<{$} |}
+%\hline
+%    \alpha & 2 & 3 \\ \hline
+%    4 & 5 & 6 \\ \hline
+%    7 & 8 & 9 \\
+%    \hline
+%  \end{tabular}
+%\end{center}
+
+%\begin{table}[htbp]
+%	\centering
+%		\begin{tabular}{| >{$}l<{$} | >{$}l<{$} | >{$}l<{$} | >{$}l<{$} | >{$}l<{$} | >{$}l<{$} |}
+%			\hline
+%			j & \sigma_j & \alpha_j & d_j & \theta_j & r_j \\ \hline
+%			1 & 0 & 0 		& 0 	& \theta_1 & 0 \\
+%			2 & 0 & \pi/2 & 0 	& \theta_2 & 0\\
+%			3 & 0 & 0 		& d_3 & \theta_3 & 0\\
+%			4 & 0 & \pi/2 & 0		& \theta_4 & 0\\
+%			5 & 0 & \pi/2 & 0		& \theta_5 & 0\\
+%			6 & 0 & \pi/2 & 0		& \theta_6 & 0\\
+%			\hline
+%		\end{tabular}
+%	\caption{Parámetros para la configuración $RRR_1$ con muñeca esférica}
+%	\label{tab:RRR1}
+%\end{table}
+%\begin{center}
+%\resizebox{1\textwidth}{!}{
+%$\underbrace{\left(
+%\begin{array}{cccc}
+% C (\text{$\theta_1$}) C (\text{$\theta_6$}) C (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$})-S (\text{$\theta_1$}) S %(\text{$\theta_6$}) & S
+%   (\text{$\theta_1$}) (-C (\text{$\theta_6$}))-C (\text{$\theta_1$}) S (\text{$\theta_6$}) C (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$}) & -C
+%   (\text{$\theta_1$}) S (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$}) & C (\text{$\theta_1$}) (\text{d3} C (\text{$\theta_2$})+\text{r4} S
+%   (\text{$\theta_2$}+\text{$\theta_3$})) \\
+ %S (\text{$\theta_1$}) C (\text{$\theta_6$}) C (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$})+C (\text{$\theta_1$}) S (\text{$\theta_6$}) & C
+ %  (\text{$\theta_1$}) C (\text{$\theta_6$})-S (\text{$\theta_1$}) S (\text{$\theta_6$}) C (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$}) & -S (\text{$\theta_1$})
+ %  S (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$}) & S (\text{$\theta_1$}) (\text{d3} C (\text{$\theta_2$})+\text{r4} S (\text{$\theta_2$}+\text{$\theta_3$}))
+  % \\
+ %C (\text{$\theta_6$}) S (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$}) & S (\text{$\theta_6$}) (-S (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$})) & C
+  % (\text{$\theta_2$}+\text{$\theta_3$}-\text{$\theta_5$}) & \text{d3} S (\text{$\theta_2$})-\text{r4} C (\text{$\theta_2$}+\text{$\theta_3$}) \\
+% 0 & 0 & 0 & 1 \\
+%\end{array}
+%\right)}_{^0T_6}$
+%}
+%\end{center}
+
+\subsection{Microcontrolador}
+
+
+Para procesar las señales proporcionadas por el encoder de cada motor,  y convertirlas en información sobre movimiento del robot, se hizo uso de la plataforma electrónica libre de desarrollo Arduino, estructura basada en un micro controlador atmega 328 con un tiempo de reloj de 16 MHz , tiene disponibles 14 entradas/salidas digitales, de las cuales 6  tienen la capacidad de generar salidas pwm, (útiles para regular la velocidad de los motores), 6 convertidores analógico a digital de 10 bits, comunicación I2C y  comunicación serial. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\textwidth]{arduino.png}
+		\caption{Plataforma libre de desarrollo arduino}
+		\label{fig:arduino}
+\end{figure}
+
+Los pulsos generados por la rotación del motor  son  introducidos a las  interrupciones externas del micro controlador, y mediante la aplicación del algoritmo disponible en el anexo #//  es posible llevar un registro de la posición de cada motor, así como el seguimiento de la velocidad, con una frecuencia de muestreo adecuada para la aplicación. Una vez que la velocidad de los motores ha sido calculada, es posible implementar un sistema de control retroalimentado por la información obtenida, el algoritmo implementado para el control de velocidad es el siguiente: 
+u(k) & =K_pe(k)-K_{pr}y(k)+K_iw(k)-K_dz(k)\\
+w(k) & =w(k-1)+he(k) \\
+z(k) & =v(k)+\alpha y(k)
+v(k) & = \frac{1}{1+\alpha h}[v(k-1)-\alpha ^2 hy(k)]
+
+
+
+
+
+\subsection{Puente H.	}
+
+Un Puente H  es un circuito electrónico que permite a un motor eléctrico DC girar en ambos sentidos, avance y retroceso son ampliamente usados en robótica y como convertidores de potencia. Los puentes H están disponibles como circuitos integrados, pero también pueden construirse a partir de componentes discretos.
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.4\textwidth]{puenteh.png}
+		\caption{Diagrama de funcionamiento del puente H}
+		\label{fig:puenteh}
+\end{figure}
+
+
+El término "puente H" proviene de la típica representación gráfica del circuito. Un puente H se construye con 4 interruptores (mecánicos o mediante transistores). Cuando los interruptores S1 y S4 están cerrados se aplica un voltaje  positivo en el motor, haciéndolo girar en un sentido. Abriendo los interruptores S1 y S4 (y cerrando S2 y S3), el voltaje se invierte, permitiendo el giro en sentido inverso del motor.
+
+El calculo de la señal de control  que se desarrolla en el microcontrolador,  se traduce a una salida  pwm, esta salida es  dirigida a un circuito L293, que contiene dos  puentes H completos, y permite controlar la velocidad y direccion de los motores. 
+
+
+
+\end{document}

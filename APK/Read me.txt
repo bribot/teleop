@@ -1,0 +1,11 @@
+La direccion de IP y puerto del video estan "hardcoded" en la APK asi que olviden ese boton y el de detener (no los toquen), 
+los otros se pueden probar poniendo la IP y puerto del server (por el momento solo estoy enviando ya que tengo
+ problemas para realizar la recepción, pero no la considero necesaria si puedo la arreglo.)
+
+Y denle en Connect antes de tocar los joysticks (si no no se podra conectar).
+
+De ahi comenzara a mandar las posiciónes de los joysticks ahi hay que ponernos de acuerdo con como los mando. Como ven la 
+resolucion es algo baja pero espero que cumpla con su cometido.
+
+Saludos.
+ 
